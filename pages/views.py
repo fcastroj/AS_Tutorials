@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.views import View
+from django.http import HttpResponse, HttpResponseRedirect
+from django.urls import reverse
 
 # Create your views here.
 class HomePageView(TemplateView):
@@ -63,7 +65,17 @@ class ProductShowView(View):
  
     def get(self, request, id): 
         viewData = {} 
-        product = Product.products[int(id)-1] 
+        
+        # Validar si el ID es válido
+        try:
+            index = int(id) - 1
+            if index < 0 or index >= len(Product.products):
+                return HttpResponseRedirect(reverse('home'))  # redirige a 'home'
+
+            product = Product.products[index]
+        except (ValueError, TypeError):
+            return HttpResponseRedirect(reverse('home'))  # redirige si id no es entero
+        
         viewData["title"] = product["name"] + " - Online Store" 
         viewData["subtitle"] =  product["name"] + " - Product information" 
         viewData["product"] = product 
