@@ -15,8 +15,12 @@
         <a
           href="{% url 'show' id=product.id %}"
           class="btn bg-primary text-white"
-          >{{product.name}}</a
-        >
+          >{{product.name}}</a>
+      </div>
+      <div class="card-footer text-center">
+        <a
+          class="btn bg-secondary text-white"
+          >{{product.price}}</a>
       </div>
     </div>
   </div>
