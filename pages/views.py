@@ -19,7 +19,7 @@ class AboutPageView(TemplateView):
             "title": "About us - Online Store", 
             "subtitle": "About us", 
             "description": "This is an about page ...", 
-            "author": "Developed by: Your Name", 
+            "author": "Developed by: Felipe Castro", 
         }) 
  
         return context 
@@ -33,7 +33,7 @@ class ContactPageView(TemplateView):
             "title": "Contact us - Online Store",
             "subtitle": "Contact us",
             "description": "This is the contact page ...",
-            "author": "Developed by: Your Name",
+            "author": "Developed by: Felipe Castro",
             "email": "Email: contactus@email.com",
             "number": "Number: +123456789",
             "address": "Address: 123 Main St, City, Country",
