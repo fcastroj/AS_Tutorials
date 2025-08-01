@@ -51,7 +51,7 @@ class ProductIndexView(View):
         viewData["subtitle"] =  "List of products" 
         viewData["products"] = Product.objects.all()  # Fetch all products from the database 
  
-        return render(request, self.template_name, viewData) 
+        return render(request, self.template_name, viewData)
  
 class ProductShowView(View): 
     template_name = 'products/show.html' 
@@ -86,10 +86,10 @@ class ProductListView(ListView):
         context['subtitle'] = 'List of products' 
         return context 
  
-class ProductForm(forms.Form):
-    name = forms.CharField(label="Name", max_length=100)
-    # description = forms.CharField(label="Description", max_length=500, widget=forms.Textarea)
-    price = forms.FloatField(label="Price")
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['name', 'price']
 
     def clean_price(self):
         price = self.cleaned_data.get('price')
@@ -102,7 +102,7 @@ class ProductCreateView(View):
     template_name = 'products/create.html' 
  
     def get(self, request): 
-        form = ProductForm() 
+        form = ProductForm()
         viewData = {} 
         viewData["title"] = "Create product" 
         viewData["form"] = form 
@@ -110,10 +110,11 @@ class ProductCreateView(View):
  
     def post(self, request): 
         form = ProductForm(request.POST) 
+
         if form.is_valid(): 
-             
-            return render(request, 'products/created.html')  # Redirect to a success page or render a success template
-        else: 
+            form.save()
+            return redirect('created') # Redirect to a success page or product list after creation
+        else:   
             viewData = {} 
             viewData["title"] = "Create product" 
             viewData["form"] = form 
