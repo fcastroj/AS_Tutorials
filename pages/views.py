@@ -1,9 +1,10 @@
 from django import forms
-from django.shortcuts import render, redirect
-from django.views.generic import TemplateView
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic import TemplateView, ListView
 from django.views import View
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
+from .models import Product
 
 # Create your views here.
 class HomePageView(TemplateView):
@@ -40,14 +41,6 @@ class ContactPageView(TemplateView):
         })
 
         return context
-    
-class Product: 
-    products = [ 
-        {"id":"1", "name":"TV", "description":"Best TV", "price": 1000}, 
-        {"id":"2", "name":"iPhone", "description":"Best iPhone", "price": 1200}, 
-        {"id":"3", "name":"Chromecast", "description":"Best Chromecast", "price": 50}, 
-        {"id":"4", "name":"Glasses", "description":"Best Glasses", "price": 100}, 
-    ] 
  
 class ProductIndexView(View): 
     template_name = 'products/index.html' 
@@ -56,34 +49,42 @@ class ProductIndexView(View):
         viewData = {} 
         viewData["title"] = "Products - Online Store" 
         viewData["subtitle"] =  "List of products" 
-        viewData["products"] = Product.products 
+        viewData["products"] = Product.objects.all()  # Fetch all products from the database 
  
         return render(request, self.template_name, viewData) 
  
 class ProductShowView(View): 
     template_name = 'products/show.html' 
  
- 
-    def get(self, request, id): 
+    def get(self, request, id):
+        # Check if product id is valid 
+        try: 
+            product_id = int(id) 
+            if product_id < 1: 
+                raise ValueError("Product id must be 1 or greater") 
+            product = get_object_or_404(Product, pk=product_id)
+        except (ValueError, IndexError): 
+            # If the product id is not valid, redirect to the home page 
+            return HttpResponseRedirect(reverse('home')) 
+
         viewData = {} 
-        
-        # Validar si el ID es válido
-        try:
-            index = int(id) - 1
-            if index < 0 or index >= len(Product.products):
-                return HttpResponseRedirect(reverse('home'))  # redirige a 'home'
-
-            product = Product.products[index]
-        except (ValueError, TypeError):
-            return HttpResponseRedirect(reverse('home'))  # redirige si id no es entero
-        
-        viewData["title"] = product["name"] + " - Online Store" 
-        viewData["subtitle"] =  product["name"] + " - Product information" 
+        product = get_object_or_404(Product, pk=product_id) 
+        viewData["title"] = product.name + " - Online Store" 
+        viewData["subtitle"] =  product.name + " - Product information" 
         viewData["product"] = product 
- 
-        return render(request, self.template_name, viewData)
+        
+        return render(request, self.template_name, viewData) 
 
+class ProductListView(ListView): 
+    model = Product 
+    template_name = 'product_list.html' 
+    context_object_name = 'products'  # This will allow you to loop through 'products' in your template 
 
+    def get_context_data(self, **kwargs): 
+        context = super().get_context_data(**kwargs) 
+        context['title'] = 'Products - Online Store' 
+        context['subtitle'] = 'List of products' 
+        return context 
  
 class ProductForm(forms.Form):
     name = forms.CharField(label="Name", max_length=100)
